@@ -139,7 +139,8 @@ def extract_circlpdns_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNS
         # Ensure the report is a list; if it's a dict or other type, return empty list
         if not isinstance(circlpdns_reports, list):
             logger.warning(
-                f"job: {job.id}, CIRCL_PDNS report is not a list, got {type(circlpdns_reports).__name__}"
+                f"job: {job.id}, CIRCL_PDNS report is not a list, "
+                f"got {type(circlpdns_reports).__name__}"
             )
             return []
         pdns_reports = []
@@ -169,7 +170,8 @@ def extract_robtex_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNSRep
         # Ensure the report is a list; if it's a dict or other type, return empty list
         if not isinstance(robtex_reports, list):
             logger.warning(
-                f"job: {job.id}, Robtex report is not a list, got {type(robtex_reports).__name__}"
+                f"job: {job.id}, Robtex report is not a list, "
+                f"got {type(robtex_reports).__name__}"
             )
             return []
         pdns_reports = []
@@ -194,13 +196,16 @@ def extract_robtex_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNSRep
 
 
 def extract_mnemonicpdns_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNSReport]:
-    mnemonicpdns_analyzer = _extract_analyzer(analyzer_reports, MnemonicPassiveDNS.python_module, job)
+    mnemonicpdns_analyzer = _extract_analyzer(
+        analyzer_reports, MnemonicPassiveDNS.python_module, job
+    )
     if mnemonicpdns_analyzer:
         mnemonicpdns_reports = mnemonicpdns_analyzer.report
         # Ensure the report is a list; if it's a dict or other type, return empty list
         if not isinstance(mnemonicpdns_reports, list):
             logger.warning(
-                f"job: {job.id}, MnemonicPassiveDNS report is not a list, got {type(mnemonicpdns_reports).__name__}"
+                f"job: {job.id}, MnemonicPassiveDNS report is not a list, "
+                f"got {type(mnemonicpdns_reports).__name__}"
             )
             return []
         pdns_reports = []
