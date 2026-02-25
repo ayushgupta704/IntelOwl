@@ -14,6 +14,29 @@ from api_app.visualizers_manager.visualizers.passive_dns.analyzer_extractor impo
 def pdns_table(
     raw_pdns_data: List[PDNSReport], table_columns: List[Visualizer.TableColumn]
 ) -> VisualizableObject:
+    # Handle cases where raw_pdns_data is not a list or is empty
+    if not isinstance(raw_pdns_data, list):
+        return [
+            Visualizer.Title(
+                title=Visualizer.Base(value="No passive DNS records found"),
+                value=Visualizer.Base(
+                    value="The analyzer did not return data in the expected format",
+                    color=Visualizer.Color.TRANSPARENT,
+                ),
+            )
+        ]
+
+    if not raw_pdns_data:
+        return [
+            Visualizer.Title(
+                title=Visualizer.Base(value="No passive DNS records found"),
+                value=Visualizer.Base(
+                    value="No historical data available for this observable",
+                    color=Visualizer.Color.TRANSPARENT,
+                ),
+            )
+        ]
+
     visualizable_reports = []
     for raw_report in raw_pdns_data:
         visualizable_reports.append(__visualize_report(raw_report))
