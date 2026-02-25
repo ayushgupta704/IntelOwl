@@ -140,7 +140,7 @@ def extract_circlpdns_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNS
         if not isinstance(circlpdns_reports, list):
             logger.warning(
                 f"job: {job.id}, CIRCL_PDNS report is not a list, "
-                f"got {type(circlpdns_reports).__name__}"
+                f"got {type(circlpdns_reports).__name__}",
             )
             return []
         pdns_reports = []
@@ -171,7 +171,7 @@ def extract_robtex_reports(analyzer_reports: QuerySet, job: Job) -> List[PDNSRep
         if not isinstance(robtex_reports, list):
             logger.warning(
                 f"job: {job.id}, Robtex report is not a list, "
-                f"got {type(robtex_reports).__name__}"
+                f"got {type(robtex_reports).__name__}",
             )
             return []
         pdns_reports = []
@@ -205,7 +205,7 @@ def extract_mnemonicpdns_reports(analyzer_reports: QuerySet, job: Job) -> List[P
         if not isinstance(mnemonicpdns_reports, list):
             logger.warning(
                 f"job: {job.id}, MnemonicPassiveDNS report is not a list, "
-                f"got {type(mnemonicpdns_reports).__name__}"
+                f"got {type(mnemonicpdns_reports).__name__}",
             )
             return []
         pdns_reports = []
