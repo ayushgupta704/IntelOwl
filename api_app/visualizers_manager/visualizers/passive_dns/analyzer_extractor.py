@@ -1,3 +1,7 @@
+"""In this module there are functions to extract the data required by
+Passive DNS visualizer from the analyzers reports.
+"""
+
 import dataclasses
 import datetime
 import logging
