@@ -3,9 +3,9 @@ x-no-healthcheck: &no-healthcheck
     disable: true
 
 services:
-  uwsgi:
+  gunicorn:
     image: intelowlproject/intelowl:${REACT_APP_INTELOWL_VERSION}
-    container_name: intelowl_uwsgi
+    container_name: intelowl_gunicorn
     volumes:
       - ../configuration/gunicorn.conf.py:/opt/deploy/intel_owl/configuration/gunicorn.conf.py
       - ../configuration:/opt/deploy/intel_owl/configuration
@@ -13,7 +13,7 @@ services:
       - static_content:/opt/deploy/intel_owl/static
       - shared_files:/opt/deploy/files_required
     entrypoint:
-      - ./docker/entrypoints/uwsgi.sh
+      - ./docker/entrypoints/gunicorn.sh
     expose:
       - "8001"
     env_file:
@@ -46,7 +46,7 @@ services:
       start_period: 2s
       retries: 6
     depends_on:
-      uwsgi:
+      gunicorn:
         condition: service_healthy
 
   nginx:
@@ -61,7 +61,7 @@ services:
       - nginx_logs:/var/log/nginx
       - static_content:/var/www/static
     depends_on:
-      uwsgi:
+      gunicorn:
         condition: service_healthy
       daphne:
         condition: service_healthy
@@ -80,7 +80,7 @@ services:
       - env_file_app
     <<: *no-healthcheck
     depends_on:
-      uwsgi:
+      gunicorn:
         condition: service_healthy
 
 
@@ -103,7 +103,7 @@ services:
     env_file:
       - env_file_app
     depends_on:
-      uwsgi:
+      gunicorn:
         condition: service_healthy
     <<: *no-healthcheck
 
