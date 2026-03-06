@@ -202,3 +202,22 @@ class OTX(classes.ObservableAnalyzer):
                 result[field_name] = data
                 logger.debug(f"result: {result}")
         return result
+
+    def _update_data_model(self, data_model) -> None:
+        super()._update_data_model(data_model)
+        report = self.report.report
+        data_model.additional_info = {
+            "reputation": report.get("reputation"),
+            "pulses_count": len(report.get("pulses", [])),
+            "malware_samples_count": len(report.get("malware_samples", [])),
+        }
+        geo = report.get("geo")
+        if geo:
+            data_model.country_code = geo.get("country_code")
+            data_model.additional_info["geo"] = geo
+        if report.get("reputation"):
+            data_model.evaluation = self.EVALUATIONS.MALICIOUS.value
+            data_model.reliability = 5
+        elif report.get("pulses"):
+            data_model.evaluation = self.EVALUATIONS.SUSPICIOUS.value
+            data_model.reliability = 3

@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from api_app.data_model_manager.enums import DataModelEvaluations
 from api_app.data_model_manager.models import (
@@ -7,7 +7,11 @@ from api_app.data_model_manager.models import (
     FileDataModel,
     IPDataModel,
 )
-from api_app.visualizers_manager.classes import Visualizer
+from api_app.visualizers_manager.classes import (
+    VisualizableObject,
+    VisualizableVerticalList,
+    Visualizer,
+)
 from api_app.visualizers_manager.decorators import (
     visualizable_error_handler_with_params,
 )
@@ -20,6 +24,59 @@ class DataModel(Visualizer):
     @classmethod
     def update(cls) -> bool:
         pass
+
+    @visualizable_error_handler_with_params("get_additional_info")
+    def get_additional_info(self, data_models: List[Any]) -> List[VisualizableVerticalList]:
+        additional_info_elements: List[VisualizableVerticalList] = []
+        for data_model in data_models:
+            if not data_model.additional_info:
+                continue
+            analyzer_report = data_model.analyzers_report.all().first()
+            analyzer_name = analyzer_report.config.name if analyzer_report else "Unknown Analyzer"
+            metadata: List[VisualizableObject] = []
+            for key, value in data_model.additional_info.items():
+                if value is None or value == "":
+                    continue
+                humanized_key = self._humanize_key(key)
+                if isinstance(value, (str, int, float, bool)):
+                    metadata.append(self.Base(value=f"{humanized_key}: {value}", disable=False))
+                elif isinstance(value, list) and value:
+                    metadata.append(
+                        self.VList(
+                            name=self.Base(value=humanized_key, disable=False),
+                            value=[self.Base(value=str(v), disable=False) for v in value],
+                            disable=False,
+                            start_open=False,
+                        )
+                    )
+                elif isinstance(value, dict) and value:
+                    nested_metadata = [
+                        self.Base(value=f"{self._humanize_key(k)}: {v}", disable=False)
+                        for k, v in value.items()
+                        if isinstance(v, (str, int, float, bool))
+                    ]
+                    if nested_metadata:
+                        metadata.append(
+                            self.VList(
+                                name=self.Base(value=humanized_key, disable=False),
+                                value=nested_metadata,
+                                disable=False,
+                                start_open=False,
+                            )
+                        )
+            if metadata:
+                additional_info_elements.append(
+                    self.VList(
+                        name=self.Base(
+                            value=f"Additional Info ({analyzer_name})",
+                            disable=False,
+                        ),
+                        value=metadata,
+                        disable=False,
+                        start_open=True,
+                    )
+                )
+        return additional_info_elements
 
     @visualizable_error_handler_with_params("get_eval_list")
     def get_eval_list(self, evaluation, color, icon, data_models):
@@ -104,12 +161,20 @@ class DataModel(Visualizer):
     @visualizable_error_handler_with_params("get_pdns")
     def get_pdns(self, data_models):
         columns = [
-            self.TableColumn(name="rrname", max_width=VisualizableTableColumnSize.S_300),
+            self.TableColumn(
+                name="rrname", max_width=VisualizableTableColumnSize.S_300
+            ),
             self.TableColumn(name="rrtype", max_width=VisualizableTableColumnSize.S_50),
             self.TableColumn(name="rdata", max_width=VisualizableTableColumnSize.S_300),
-            self.TableColumn(name="time_first", max_width=VisualizableTableColumnSize.S_100),
-            self.TableColumn(name="time_last", max_width=VisualizableTableColumnSize.S_100),
-            self.TableColumn(name="analyzer", max_width=VisualizableTableColumnSize.S_200),
+            self.TableColumn(
+                name="time_first", max_width=VisualizableTableColumnSize.S_100
+            ),
+            self.TableColumn(
+                name="time_last", max_width=VisualizableTableColumnSize.S_100
+            ),
+            self.TableColumn(
+                name="analyzer", max_width=VisualizableTableColumnSize.S_200
+            ),
         ]
 
         data = []
@@ -169,10 +234,14 @@ class DataModel(Visualizer):
     @visualizable_error_handler_with_params("get_signatures")
     def get_signatures(self, data_models):
         columns = [
-            self.TableColumn(name="provider", max_width=VisualizableTableColumnSize.S_100),
+            self.TableColumn(
+                name="provider", max_width=VisualizableTableColumnSize.S_100
+            ),
             self.TableColumn(name="url", max_width=VisualizableTableColumnSize.S_300),
             self.TableColumn(name="score", max_width=VisualizableTableColumnSize.S_50),
-            self.TableColumn(name="analyzer", max_width=VisualizableTableColumnSize.S_100),
+            self.TableColumn(
+                name="analyzer", max_width=VisualizableTableColumnSize.S_100
+            ),
         ]
 
         data = []
@@ -187,7 +256,9 @@ class DataModel(Visualizer):
                             disable=False,
                         ),
                         "url": self.Base(
-                            value=(signature.url if signature.url else "No url available"),
+                            value=(
+                                signature.url if signature.url else "No url available"
+                            ),
                             link=signature.url,
                             color=self.Color.TRANSPARENT,
                             disable=not signature.url,
@@ -238,6 +309,14 @@ class DataModel(Visualizer):
             )
         )
 
+        page.add_level(
+            self.Level(
+                position=6,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
+            )
+        )
+
     def get_ip_data_elements(self, page, data_models):
         page.add_level(
             self.Level(
@@ -275,12 +354,28 @@ class DataModel(Visualizer):
             )
         )
 
+        page.add_level(
+            self.Level(
+                position=6,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
+            )
+        )
+
     def get_file_data_elements(self, page, data_models):
         page.add_level(
             self.Level(
                 position=3,
                 size=self.LevelSize.S_5,
                 horizontal_list=self.HList(value=[self.get_signatures(data_models)]),
+            )
+        )
+
+        page.add_level(
+            self.Level(
+                position=4,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
             )
         )
 
@@ -293,7 +388,9 @@ class DataModel(Visualizer):
         data_models = self.get_data_models()
 
         for data_model in data_models:
-            printable_analyzer_name = data_model.analyzers_report.all().first().config.name.replace("_", " ")
+            printable_analyzer_name = (
+                data_model.analyzers_report.all().first().config.name.replace("_", " ")
+            )
             logger.debug(f"{printable_analyzer_name}, {data_model}")
 
             evaluation = data_model.evaluation or ""
@@ -345,7 +442,9 @@ class DataModel(Visualizer):
                 malicious_data_models,
             ),
         ]:
-            evals_vlists.append(self.get_eval_list(evaluation, color, icon, eval_data_models))
+            evals_vlists.append(
+                self.get_eval_list(evaluation, color, icon, eval_data_models)
+            )
 
         related_threats = []
         external_references = []

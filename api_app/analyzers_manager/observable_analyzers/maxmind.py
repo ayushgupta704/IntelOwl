@@ -207,21 +207,27 @@ class Maxmind(classes.ObservableAnalyzer):
 
     def _update_data_model(self, data_model) -> None:
         from api_app.analyzers_manager.models import AnalyzerReport
-
         super()._update_data_model(data_model)
-        org = self.report.report.get("autonomous_system_organization", None)
+        report = self.report.report
+        data_model.country_code = report.get("country", {}).get("iso_code")
+        data_model.registered_country_code = report.get("registered_country", {}).get("iso_code")
+        data_model.asn = report.get("autonomous_system_number")
+        data_model.isp = report.get("autonomous_system_organization")
+        data_model.additional_info = {
+            "city": report.get("city", {}).get("names", {}).get("en"),
+            "subdivisions": [s.get("names", {}).get("en") for s in report.get("subdivisions", [])],
+            "continent": report.get("continent", {}).get("names", {}).get("en"),
+            "postal_code": report.get("postal", {}).get("code"),
+            "location": report.get("location"),
+        }
+        org = report.get("autonomous_system_organization", None)
         if org:
             org = org.lower()
             self.report: AnalyzerReport
             if org in ["fastly", "cloudflare", "akamai"]:
                 data_model.evaluation = self.EVALUATIONS.TRUSTED.value
                 data_model.reliability = 4
-            elif org in [
-                "zscaler",
-                "palo alto networks",
-                "microdata service srl",
-                "forcepoint",
-            ]:
+            elif org in ["zscaler", "palo alto networks", "microdata service srl", "forcepoint"]:
                 data_model.evaluation = self.EVALUATIONS.TRUSTED.value
                 data_model.reliability = 8
             elif org in ["stark industries"]:

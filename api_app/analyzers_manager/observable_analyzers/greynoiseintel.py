@@ -100,11 +100,24 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
 
     def _update_data_model(self, data_model):
         from api_app.analyzers_manager.models import AnalyzerReport
-
         super()._update_data_model(data_model)
-        classification = self.report.report.get("classification", None)
-        riot = self.report.report.get("riot", None)
-        noise = self.report.report.get("noise", None)
+        report = self.report.report
+        data_model.org_name = report.get("metadata", {}).get("organization")
+        data_model.country_code = report.get("metadata", {}).get("country_code")
+        data_model.additional_info = {
+            "actor": report.get("actor"),
+            "classification": report.get("classification"),
+            "tags": report.get("tags"),
+            "vpn": report.get("vpn"),
+            "vpn_service": report.get("vpn_service"),
+            "bot": report.get("bot"),
+            "tor": report.get("tor"),
+            "riot": report.get("riot"),
+            "noise": report.get("noise"),
+        }
+        classification = report.get("classification", None)
+        riot = report.get("riot", None)
+        noise = report.get("noise", None)
         if classification:
             classification = classification.lower()
             self.report: AnalyzerReport

@@ -536,6 +536,24 @@ class Visualizer(Plugin, metaclass=abc.ABCMeta):
     def config_model(cls) -> Type[VisualizerConfig]:
         return VisualizerConfig
 
+    @staticmethod
+    def _humanize_key(key: str) -> str:
+        import re
+        res = re.sub(r"(?<!^)(?=[A-Z])", " ", key).replace("_", " ")
+        return res.title()
+
+    def _get_dynamic_metadata(self, data: Dict[str, Any], excluded_keys: List[str]) -> List[VisualizableObject]:
+        metadata: List[VisualizableObject] = []
+        if not data or not isinstance(data, dict):
+            return metadata
+        for key, value in data.items():
+            if key in excluded_keys or value is None or value == "":
+                continue
+            humanized_key = self._humanize_key(key)
+            if isinstance(value, (str, int, float, bool)):
+                metadata.append(self.Base(value=f"{humanized_key}: {value}"))
+        return metadata
+
     def get_exceptions_to_catch(self) -> list:
         return [
             VisualizerConfigurationException,

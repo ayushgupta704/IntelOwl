@@ -7,69 +7,138 @@ from api_app.visualizers_manager.classes import Visualizer
 from api_app.visualizers_manager.decorators import (
     visualizable_error_handler_with_params,
 )
-from api_app.visualizers_manager.enums import (
-    VisualizableColor,
-    VisualizableIcon,
-    VisualizableSize,
-)
 
 logger = getLogger(__name__)
 
 
 class IPReputationServices(Visualizer):
-    @visualizable_error_handler_with_params("VirusTotal")
+    @classmethod
+    def update(cls) -> bool:
+        pass
+
+    @visualizable_error_handler_with_params("AbuseIPDB")
+    def _abuseipdb(self):
+        try:
+            analyzer_report = self.get_analyzer_reports().get(config__name="AbuseIPDB")
+        except AnalyzerReport.DoesNotExist:
+            logger.warning("AbuseIPDB report does not exist")
+        else:
+            report_data = analyzer_report.report.get("data", {})
+            abuse_confidence_score = report_data.get("abuseConfidenceScore", None)
+            abuse_report = self.VList(
+                name=self.Base(
+                    value="AbuseIPDB",
+                    disable=not (
+                        analyzer_report.status == ReportStatus.SUCCESS
+                        and abuse_confidence_score is not None
+                    ),
+                ),
+                value=[
+                    self.Base(
+                        value="AbuseIPDB Meta",
+                        description=(
+                            "AbuseIPDB is a service where users can report malicious IP addresses attacking "
+                            + "their infrastructure."
+                        ),
+                    ),
+                    self.Base(
+                        value=f"Confidence Score: {abuse_confidence_score}",
+                    ),
+                    self.VList(
+                        name=self.Base(
+                            value="AbuseIPDB Categories",
+                            disable=not bool(analyzer_report.report.get("categories_found", {})),
+                        ),
+                        value=[
+                            self.Base(value=cat)
+                            for cat in analyzer_report.report.get("categories_found", {}).keys()
+                        ],
+                        disable=not bool(analyzer_report.report.get("categories_found", {})),
+                        start_open=False,
+                    ),
+                ],
+                disable=not (
+                    analyzer_report.status == ReportStatus.SUCCESS
+                    and abuse_confidence_score is not None
+                ),
+            )
+            return abuse_report
+
+    @visualizable_error_handler_with_params("VirusTotal v3")
     def _vt3(self):
         try:
             analyzer_report = self.get_analyzer_reports().get(config__name="VirusTotal_v3_Get_Observable")
         except AnalyzerReport.DoesNotExist:
             logger.warning("VirusTotal_v3_Get_Observable report does not exist")
         else:
-            hits = (
-                analyzer_report.report.get("data", {})
-                .get("attributes", {})
-                .get("last_analysis_stats", {})
-                .get("malicious", 0)
-            )
-            virustotal_report = self.Title(
-                self.Base(
-                    value="VirusTotal",
-                    link=analyzer_report.report["link"],
-                    icon=VisualizableIcon.VIRUSTotal,
+            attributes = analyzer_report.report.get("data", {}).get("attributes", {})
+            stats = attributes.get("last_analysis_stats", {})
+            malicious_count = stats.get("malicious", 0)
+            vt3_report = self.Bool(
+                value="VirusTotal v3",
+                disable=not (
+                    analyzer_report.status == ReportStatus.SUCCESS and malicious_count > 0
                 ),
-                self.Base(value=f"Engine Hits: {hits}"),
-                disable=analyzer_report.status != ReportStatus.SUCCESS or not hits,
             )
-            return virustotal_report
+            return vt3_report
 
-    @visualizable_error_handler_with_params("Greynoise")
-    def _greynoise(self):
+    @visualizable_error_handler_with_params("GreedyBear")
+    def _greedybear(self):
+        try:
+            analyzer_report = self.get_analyzer_reports().get(config__name="GreedyBear")
+        except AnalyzerReport.DoesNotExist:
+            logger.warning("GreedyBear report does not exist")
+        else:
+            found = analyzer_report.report.get("found", False)
+            greedybear_report = self.Bool(
+                value="GreedyBear",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and found),
+            )
+            return greedybear_report
+
+    @visualizable_error_handler_with_params("GreyNoise Community")
+    def _greynoise_community(self):
         try:
             analyzer_report = self.get_analyzer_reports().get(config__name="GreyNoiseCommunity")
         except AnalyzerReport.DoesNotExist:
-            logger.warning("GreynoiseCommunity report does not exist")
+            logger.warning("GreyNoiseCommunity report does not exist")
         else:
-            message = analyzer_report.report.get("message", None)
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or message != "Success"
-            classification = analyzer_report.report.get("classification", "")
-            if classification == "benign":
-                icon = VisualizableIcon.LIKE
-                color = VisualizableColor.SUCCESS
-            elif classification == "malicious":
-                icon = VisualizableIcon.MALWARE
-                color = VisualizableColor.DANGER
-            else:  # should be "unknown"
-                icon = VisualizableIcon.WARNING
-                color = VisualizableColor.INFO
-            greynoise_report = self.Title(
-                self.Base(
-                    value="Greynoise",
-                    link=analyzer_report.report.get("link", ""),
-                    icon=icon,
-                ),
-                self.Base(value=analyzer_report.report.get("name", ""), color=color),
-                disable=disabled,
+            noise = analyzer_report.report.get("noise", False)
+            greynoise_community_report = self.Bool(
+                value="GreyNoise Community",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and noise),
             )
-            return greynoise_report
+            return greynoise_community_report
+
+    @visualizable_error_handler_with_params("Crowdsec")
+    def _crowdsec(self):
+        try:
+            analyzer_report = self.get_analyzer_reports().get(config__name="Crowdsec")
+        except AnalyzerReport.DoesNotExist:
+            logger.warning("Crowdsec report does not exist")
+        else:
+            found = analyzer_report.report.get("found", False)
+            crowdsec_report = self.Bool(
+                value="Crowdsec",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and found),
+            )
+            return crowdsec_report
+
+    @visualizable_error_handler_with_params("ThreatFox")
+    def _threatfox(self):
+        try:
+            analyzer_report = self.get_analyzer_reports().get(config__name="ThreatFox")
+        except AnalyzerReport.DoesNotExist:
+            logger.warning("ThreatFox report does not exist")
+        else:
+            query_status = analyzer_report.report.get("query_status", "")
+            threatfox_report = self.Bool(
+                value="ThreatFox",
+                disable=not (
+                    analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"
+                ),
+            )
+            return threatfox_report
 
     @visualizable_error_handler_with_params("URLhaus")
     def _urlhaus(self):
@@ -78,190 +147,44 @@ class IPReputationServices(Visualizer):
         except AnalyzerReport.DoesNotExist:
             logger.warning("URLhaus report does not exist")
         else:
-            disabled = (
-                analyzer_report.status != ReportStatus.SUCCESS
-                or analyzer_report.report.get("query_status", None) != "ok"
-            )
-            urlhaus_report = self.Title(
-                self.Base(
-                    value="URLhaus",
-                    link=analyzer_report.report.get("urlhaus_reference", ""),
-                    icon=VisualizableIcon.URLHAUS,
+            query_status = analyzer_report.report.get("query_status", "")
+            urlhaus_report = self.Bool(
+                value="URLhaus",
+                disable=not (
+                    analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"
                 ),
-                self.Base(
-                    value=("" if disabled else f"found {analyzer_report.report.get('urlhaus_status', '')}")
-                ),
-                disable=disabled,
             )
             return urlhaus_report
 
-    @visualizable_error_handler_with_params("ThreatFox")
-    def _threatfox(self):
-        try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="ThreatFox")
-        except AnalyzerReport.DoesNotExist:
-            logger.warning("Threatfox report does not exist")
-        else:
-            disabled = (
-                analyzer_report.status != ReportStatus.SUCCESS
-                or analyzer_report.report.get("query_status", None) != "ok"
-            )
-            data = analyzer_report.report.get("data", [])
-            malware_printable = ""
-            if data and isinstance(data, list):
-                malware_printable = data[0].get("malware_printable", "")
-            threatfox_report = self.Title(
-                self.Base(value="ThreatFox", link=analyzer_report.report.get("link", "")),
-                self.Base(value="" if disabled else f"found {malware_printable}"),
-                disable=disabled,
-            )
-            return threatfox_report
-
-    @visualizable_error_handler_with_params("InQuest")
-    def _inquest_repdb(self):
+    @visualizable_error_handler_with_params("InQuest REPdb")
+    def _inquest(self):
         try:
             analyzer_report = self.get_analyzer_reports().get(config__name="InQuest_REPdb")
         except AnalyzerReport.DoesNotExist:
             logger.warning("InQuest_REPdb report does not exist")
         else:
-            success = analyzer_report.report.get("success", False)
-            data = analyzer_report.report.get("data", [])
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not success or not data
-            inquest_report = self.Title(
-                self.Base(
-                    value="InQuest",
-                    link=analyzer_report.report.get("link", ""),
-                    icon=VisualizableIcon.WARNING,
-                ),
-                self.Base(value="" if disabled else "found"),
-                disable=disabled,
+            found = analyzer_report.report.get("found", False)
+            inquest_report = self.Bool(
+                value="InQuest REPdb",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and found),
             )
             return inquest_report
 
-    @visualizable_error_handler_with_params("AbuseIPDB Categories")
-    def _abuse_ipdb(self):
+    @visualizable_error_handler_with_params("Tor Project")
+    def _tor(self):
         try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="AbuseIPDB")
+            analyzer_report = self.get_analyzer_reports().get(config__name="TorProject")
         except AnalyzerReport.DoesNotExist:
-            logger.warning("AbuseIPDB report does not exist")
-            return None, None
+            logger.warning("TorProject report does not exist")
         else:
-            data = analyzer_report.report.get("data", [])
-            isp = data.get("isp", "")
-            usage = data.get("usageType", "")
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or (not isp and not usage)
-            abuse_report = self.Title(
-                self.Base(
-                    value="AbuseIPDB Meta",
-                    link=analyzer_report.report.get("permalink", ""),
-                    icon=VisualizableIcon.INFO,
-                ),
-                self.Base(value="" if disabled else f"{isp} ({usage})"),
-                disable=disabled,
+            is_exit_node = analyzer_report.report.get("is_exit_node", False)
+            tor_report = self.Bool(
+                value="Tor Project",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and is_exit_node),
             )
+            return tor_report
 
-            categories_extracted = []
-            for c in data.get("reports", []):
-                categories_extracted.extend(c.get("categories_human_readable", []))
-            categories_extracted = list(set(categories_extracted))
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not categories_extracted
-            abuse_categories_report = self.VList(
-                name=self.Base(
-                    value="AbuseIPDB Categories",
-                    icon=VisualizableIcon.ALARM,
-                    color=VisualizableColor.DANGER,
-                    disable=disabled,
-                ),
-                value=[self.Base(c, disable=disabled) for c in categories_extracted],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-                size=VisualizableSize.S_2,
-            )
-
-            return abuse_report, abuse_categories_report
-
-    @visualizable_error_handler_with_params("GreedyBear Honeypots")
-    def _greedybear(self):
-        try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="GreedyBear")
-        except AnalyzerReport.DoesNotExist:
-            logger.warning("GreedyBear report does not exist")
-        else:
-            found = analyzer_report.report.get("found", False)
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not found
-            ioc = analyzer_report.report.get("ioc", {})
-            honeypots = []
-            if ioc:
-                honeypots = list(ioc.get("general_honeypot", []))
-                if ioc.get("cowrie"):
-                    honeypots.append("Cowrie")
-                if ioc.get("log4j"):
-                    honeypots.append("Log4Pot")
-            gb_report = self.VList(
-                name=self.Base(
-                    value="GreedyBear Honeypots",
-                    icon=VisualizableIcon.WARNING,
-                    color=VisualizableColor.DANGER,
-                    disable=disabled,
-                ),
-                value=[self.Base(h, disable=disabled) for h in honeypots],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-                size=VisualizableSize.S_2,
-            )
-            return gb_report
-
-    @visualizable_error_handler_with_params("Crowdsec Classifications", "Crowdsec Behaviors")
-    def _crowdsec(self):
-        try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="Crowdsec")
-        except AnalyzerReport.DoesNotExist:
-            logger.warning("Crowdsec report does not exist")
-            return None, None
-        else:
-            classifications = analyzer_report.report.get("classifications", {})
-            sub_classifications = classifications.get("classifications", [])
-            false_positives = classifications.get("false_positives", [])
-            all_class = sub_classifications + false_positives
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not all_class
-            crowdsec_classification_report = self.VList(
-                name=self.Base(
-                    value="Crowdsec Classifications",
-                    icon=VisualizableIcon.INFO,
-                    color=VisualizableColor.INFO,
-                    disable=disabled,
-                ),
-                value=[self.Base(c.get("label", ""), disable=disabled) for c in all_class],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-                size=VisualizableSize.S_2,
-            )
-
-            behaviors = analyzer_report.report.get("behaviors", [])
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not behaviors
-            crowdsec_behaviors_report = self.VList(
-                name=self.Base(
-                    value="Crowdsec Behaviors",
-                    icon=VisualizableIcon.ALARM,
-                    color=VisualizableColor.DANGER,
-                    disable=disabled,
-                ),
-                value=[self.Base(b.get("label", ""), disable=disabled) for b in behaviors],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-                size=VisualizableSize.S_2,
-            )
-            return crowdsec_classification_report, crowdsec_behaviors_report
-
-    @visualizable_error_handler_with_params("OTX Alienvault")
+    @visualizable_error_handler_with_params("OTXQuery")
     def _otxquery(self):
         try:
             analyzer_report = self.get_analyzer_reports().get(config__name="OTXQuery")
@@ -269,65 +192,11 @@ class IPReputationServices(Visualizer):
             logger.warning("OTXQuery report does not exist")
         else:
             pulses = analyzer_report.report.get("pulses", [])
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not pulses
-            otx_report = self.VList(
-                name=self.Base(
-                    value="OTX Alienvault",
-                    icon=VisualizableIcon.OTX,
-                    color=VisualizableColor.DANGER,
-                    disable=disabled,
-                ),
-                value=[
-                    self.Base(
-                        value=p.get("name", ""),
-                        link=p.get("link", ""),
-                        disable=disabled,
-                    )
-                    for p in pulses
-                ],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-                size=VisualizableSize.S_4,
+            otxquery_report = self.Bool(
+                value="OTXQuery",
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and len(pulses) > 0),
             )
-            return otx_report
-
-    @visualizable_error_handler_with_params("FireHol")
-    def _firehol(self):
-        try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="FireHol_IPList")
-        except AnalyzerReport.DoesNotExist:
-            logger.warning("FireHol_IPList report does not exist")
-        else:
-            found_in_lists = []
-            for report, found in analyzer_report.report.items():
-                if found:
-                    found_in_lists.append(report)
-            disabled = analyzer_report.status != ReportStatus.SUCCESS or not found_in_lists
-            otx_report = self.VList(
-                name=self.Base(value="FireHol", icon=VisualizableIcon.FIRE, disable=disabled),
-                value=[self.Base(f, disable=disabled) for f in found_in_lists],
-                start_open=True,
-                max_elements_number=5,
-                report=analyzer_report,
-                disable=disabled,
-            )
-            return otx_report
-
-    @visualizable_error_handler_with_params("Tor Exit Node")
-    def _tor(self):
-        try:
-            analyzer_report = self.get_analyzer_reports().get(config__name="TorProject")
-        except AnalyzerReport.DoesNotExist:
-            logger.warning("TorProject report does not exist")
-        else:
-            found = analyzer_report.report.get("found", False)
-            tor_report = self.Bool(
-                value="Tor Exit Node",
-                disable=not (analyzer_report.status == ReportStatus.SUCCESS and found),
-            )
-            return tor_report
+            return otxquery_report
 
     @visualizable_error_handler_with_params("Talos Reputation")
     def _talos(self):
@@ -349,49 +218,29 @@ class IPReputationServices(Visualizer):
         third_level_elements = []
 
         first_level_elements.append(self._vt3())
-
-        first_level_elements.append(self._greynoise())
-
-        first_level_elements.append(self._urlhaus())
-
+        first_level_elements.append(self._greedybear())
+        first_level_elements.append(self._greynoise_community())
+        first_level_elements.append(self._crowdsec())
         first_level_elements.append(self._threatfox())
-
-        first_level_elements.append(self._inquest_repdb())
-
-        abuse_report, abuse_categories_report = self._abuse_ipdb()
-        third_level_elements.append(abuse_report)
-
-        gb_report = self._greedybear()
-
-        crowdsec_classification_report, crowdsec_behaviors_report = self._crowdsec()
-        second_level_elements.append(crowdsec_classification_report)
-
-        second_level_elements.append(gb_report)
-
-        second_level_elements.append(abuse_categories_report)
-
-        second_level_elements.append(crowdsec_behaviors_report)
-
+        first_level_elements.append(self._urlhaus())
+        first_level_elements.append(self._inquest())
+        first_level_elements.append(self._tor())
+        second_level_elements.append(self._abuseipdb())
         second_level_elements.append(self._otxquery())
-
-        third_level_elements.append(self._firehol())
-
-        third_level_elements.append(self._tor())
-
         third_level_elements.append(self._talos())
 
         page = self.Page(name="Reputation")
         page.add_level(
             self.Level(
                 position=1,
-                size=self.LevelSize.S_3,
+                size=self.LevelSize.S_6,
                 horizontal_list=self.HList(value=first_level_elements),
             )
         )
         page.add_level(
             self.Level(
                 position=2,
-                size=self.LevelSize.S_5,
+                size=self.LevelSize.S_6,
                 horizontal_list=self.HList(value=second_level_elements),
             )
         )

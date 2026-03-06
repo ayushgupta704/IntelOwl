@@ -89,23 +89,31 @@ class AbuseIPDB(ObservableAnalyzer):
         data_model.tags = []
         report_data = self.report.report.get("data", {})
         categories_found = self.report.report.get("categories_found", {})
-        data_model.additional_info = {"distinct_users": report_data["numDistinctUsers"]}
+        data_model.isp = report_data.get("isp")
+        data_model.country_code = report_data.get("countryCode")
+        data_model.additional_info = {
+            "total_reports": report_data.get("totalReports"),
+            "distinct_users": report_data.get("numDistinctUsers"),
+            "last_reported_at": report_data.get("lastReportedAt"),
+            "abuse_confidence_score": report_data.get("abuseConfidenceScore"),
+            "is_whitelisted": report_data.get("isWhitelisted"),
+            "usage_type": report_data.get("usageType"),
+            "domain": report_data.get("domain"),
+            "hostnames": report_data.get("hostnames"),
+        }
         if report_data.get("totalReports", 0):
             self.report: AnalyzerReport
             if report_data["isWhitelisted"]:
                 evaluation = self.report.data_model_class.EVALUATIONS.TRUSTED.value
                 data_model.additional_info["description"] = (
                     "AbuseIPDB is a service where users can report malicious IP addresses attacking "
-                    + "their infrastructure."
-                    + "This IP address has been whitelisted"
+                    + "their infrastructure. This IP address has been whitelisted"
                 )
             else:
                 evaluation = self.report.data_model_class.EVALUATIONS.MALICIOUS.value
                 data_model.additional_info["description"] = (
                     "AbuseIPDB is a service where users can report malicious IP addresses attacking "
-                    + "their infrastructure."
-                    + "This IP address has been categorized with some malicious "
-                    + "categories"
+                    + "their infrastructure. This IP address has been categorized with some malicious categories"
                 )
             data_model.evaluation = evaluation
             data_model.reliability = report_data["abuseConfidenceScore"] // 10
