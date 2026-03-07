@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from api_app.data_model_manager.enums import DataModelEvaluations
 from api_app.data_model_manager.models import (
@@ -7,7 +7,11 @@ from api_app.data_model_manager.models import (
     FileDataModel,
     IPDataModel,
 )
-from api_app.visualizers_manager.classes import Visualizer
+from api_app.visualizers_manager.classes import (
+    VisualizableObject,
+    VisualizableVerticalList,
+    Visualizer,
+)
 from api_app.visualizers_manager.decorators import (
     visualizable_error_handler_with_params,
 )
@@ -233,10 +237,65 @@ class DataModel(Visualizer):
         page.add_level(
             self.Level(
                 position=5,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
+            )
+        )
+
+        page.add_level(
+            self.Level(
+                position=6,
                 size=self.LevelSize.S_5,
                 horizontal_list=self.HList(value=[self.get_pdns(data_models)]),
             )
         )
+
+    @visualizable_error_handler_with_params("get_additional_info")
+    def get_additional_info(self, data_models: List[Any]) -> List[VisualizableVerticalList]:
+        additional_info_elements: List[VisualizableVerticalList] = []
+        for data_model in data_models:
+            if not data_model.additional_info:
+                continue
+            analyzer_report = data_model.analyzers_report.all().first()
+            analyzer_name = analyzer_report.config.name.replace("_", " ") if analyzer_report else "Unknown"
+            metadata: List[VisualizableObject] = []
+            for key, value in data_model.additional_info.items():
+                if value is None or value == "":
+                    continue
+                humanized_key = self._humanize_key(key)
+                if isinstance(value, (str, int, float, bool)):
+                    metadata.append(self.Base(value=f"{humanized_key}: {value}", disable=False))
+                elif isinstance(value, list) and value:
+                    metadata.append(
+                        self.VList(
+                            name=self.Base(value=humanized_key, disable=False),
+                            value=[self.Base(value=str(v), disable=False) for v in value],
+                            disable=False,
+                            start_open=False,
+                        )
+                    )
+                elif isinstance(value, dict) and value:
+                    metadata.append(
+                        self.VList(
+                            name=self.Base(value=humanized_key, disable=False),
+                            value=[
+                                self.Base(value=f"{self._humanize_key(k)}: {str(v)[:50]}", disable=False)
+                                for k, v in value.items()
+                            ],
+                            disable=False,
+                            start_open=False,
+                        )
+                    )
+            if metadata:
+                additional_info_elements.append(
+                    self.VList(
+                        name=self.Base(value=f"Additional Info ({analyzer_name})", disable=False),
+                        value=metadata,
+                        disable=False,
+                        start_open=True,
+                    )
+                )
+        return additional_info_elements
 
     def get_ip_data_elements(self, page, data_models):
         page.add_level(
@@ -270,6 +329,14 @@ class DataModel(Visualizer):
         page.add_level(
             self.Level(
                 position=5,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
+            )
+        )
+
+        page.add_level(
+            self.Level(
+                position=6,
                 size=self.LevelSize.S_5,
                 horizontal_list=self.HList(value=[self.get_pdns(data_models)]),
             )
@@ -281,6 +348,14 @@ class DataModel(Visualizer):
                 position=3,
                 size=self.LevelSize.S_5,
                 horizontal_list=self.HList(value=[self.get_signatures(data_models)]),
+            )
+        )
+
+        page.add_level(
+            self.Level(
+                position=4,
+                size=self.LevelSize.S_6,
+                horizontal_list=self.HList(value=self.get_additional_info(data_models)),
             )
         )
 

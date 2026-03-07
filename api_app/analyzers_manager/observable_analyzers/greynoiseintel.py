@@ -56,12 +56,12 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
             self.disable_for_rate_limit()
             self.report.errors.append(error_message)
             self.report.save()
-            raise AnalyzerRunException(error_message)
+            raise AnalyzerRunException(error_message) from e
         except RequestFailure as e:
             error_message = self._format_greynoise_error(e, "Request failure from GreyNoise API")
             self.report.errors.append(error_message)
             self.report.save()
-            raise AnalyzerRunException(error_message)
+            raise AnalyzerRunException(error_message) from e
         except NotFound as e:
             logger.info(f"not found error for {self.observable_name} :{e}")
             response["not_found"] = True
@@ -102,9 +102,18 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
         from api_app.analyzers_manager.models import AnalyzerReport
 
         super()._update_data_model(data_model)
-        classification = self.report.report.get("classification", None)
-        riot = self.report.report.get("riot", None)
-        noise = self.report.report.get("noise", None)
+        report = self.report.report
+        data_model.org_name = report.get("metadata", {}).get("organization")
+        data_model.additional_info = {
+            "noise": report.get("noise"),
+            "riot": report.get("riot"),
+            "seen": report.get("seen"),
+            "last_seen": report.get("last_seen"),
+            "actor": report.get("actor"),
+        }
+        classification = report.get("classification", None)
+        riot = report.get("riot", None)
+        noise = report.get("noise", None)
         if classification:
             classification = classification.lower()
             self.report: AnalyzerReport
@@ -124,5 +133,6 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
                 data_model.reliability = 7
             else:
                 logger.error(
-                    f"there should not be other types of classification. Classification found: {classification}"
+                    "there should not be other types of classification. "
+                    f"Classification found: {str(classification)[:50]}"
                 )

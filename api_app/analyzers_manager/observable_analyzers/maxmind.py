@@ -209,7 +209,16 @@ class Maxmind(classes.ObservableAnalyzer):
         from api_app.analyzers_manager.models import AnalyzerReport
 
         super()._update_data_model(data_model)
-        org = self.report.report.get("autonomous_system_organization", None)
+        report = self.report.report
+        data_model.country_code = report.get("country", {}).get("iso_code")
+        data_model.asn = report.get("autonomous_system_number")
+        data_model.isp = report.get("isp")
+        data_model.additional_info = {
+            "city": report.get("city", {}).get("names", {}).get("en"),
+            "organization": report.get("organization"),
+            "autonomous_system_organization": report.get("autonomous_system_organization"),
+        }
+        org = report.get("autonomous_system_organization", None)
         if org:
             org = org.lower()
             self.report: AnalyzerReport

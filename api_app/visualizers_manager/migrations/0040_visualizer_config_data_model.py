@@ -14,7 +14,11 @@ plugin = {
         "module": "data_model.DataModel",
         "base_path": "api_app.visualizers_manager.visualizers",
     },
-    "playbooks": ["FREE_TO_USE_ANALYZERS"],
+    "playbooks": [
+        "FREE_TO_USE_ANALYZERS",
+        "Popular_IP_Reputation_Services",
+        "Popular_URL_Reputation_Services",
+    ],
     "name": "Data_Model",
     "description": "Visualizer for Data Models",
     "disabled": False,

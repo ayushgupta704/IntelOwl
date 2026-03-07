@@ -51,7 +51,7 @@ class OTXv2Extended(OTXv2.OTXv2):
             OTXv2.requests.exceptions.RetryError,
             OTXv2.requests.exceptions.Timeout,
         ) as e:
-            raise OTXv2.RetryError(e)
+            raise OTXv2.RetryError(e) from e
 
 
 class OTX(classes.ObservableAnalyzer):
@@ -175,7 +175,7 @@ class OTX(classes.ObservableAnalyzer):
                     section=section,
                 )
             except (OTXv2.BadRequest, OTXv2.RetryError) as e:
-                raise AnalyzerRunException(f"Error while requesting data to OTX: {e}")
+                raise AnalyzerRunException(f"Error while requesting data to OTX: {e}") from e
             except OTXv2.NotFound as e:
                 logger.info(f"{to_analyze_observable} not found: {e}")
             else:
@@ -202,3 +202,28 @@ class OTX(classes.ObservableAnalyzer):
                 result[field_name] = data
                 logger.debug(f"result: {result}")
         return result
+
+    def _update_data_model(self, data_model):
+        super()._update_data_model(data_model)
+        report = self.report.report
+        data_model.asn = report.get("geo", {}).get("asn")
+        data_model.country_code = report.get("geo", {}).get("country_code")
+
+        reputation = report.get("reputation")
+        if reputation is not None:
+            if reputation > 0:
+                data_model.evaluation = self.EVALUATIONS.MALICIOUS.value
+                data_model.reliability = min(reputation // 10, 10)
+            else:
+                data_model.evaluation = self.EVALUATIONS.TRUSTED.value
+                data_model.reliability = 1
+
+        data_model.additional_info = {
+            "pulses_count": len(report.get("pulses", [])),
+            "malware_samples_count": len(report.get("malware_samples", [])),
+            "url_list_count": len(report.get("url_list", [])),
+        }
+        if report.get("pulses"):
+            data_model.additional_info["latest_pulses"] = [
+                {"name": p.get("name"), "author": p.get("author_name")} for p in report["pulses"][:5]
+            ]
