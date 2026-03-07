@@ -132,7 +132,4 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
                 data_model.evaluation = self.EVALUATIONS.TRUSTED.value
                 data_model.reliability = 7
             else:
-                logger.error(
-                    "there should not be other types of classification. "
-                    f"Classification found: {str(classification)[:50]}"
-                )
+                logger.error("there should not be other types of classification. Received an unknown type.")
