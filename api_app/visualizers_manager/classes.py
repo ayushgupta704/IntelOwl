@@ -478,11 +478,11 @@ class VisualizableLevel:
         self,
         position: int,
         size: VisualizableLevelSize = VisualizableLevelSize.S_6,
-        horizontal_list: VisualizableHorizontalList = VisualizableHorizontalList(value=[]),
+        horizontal_list: VisualizableHorizontalList | None = None,
     ):
         self._position = position
         self._size = size
-        self._horizontal_list = horizontal_list
+        self._horizontal_list = horizontal_list or VisualizableHorizontalList(value=[])
 
     def to_dict(self):
         return {

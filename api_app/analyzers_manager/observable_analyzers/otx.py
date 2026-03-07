@@ -51,7 +51,7 @@ class OTXv2Extended(OTXv2.OTXv2):
             OTXv2.requests.exceptions.RetryError,
             OTXv2.requests.exceptions.Timeout,
         ) as e:
-            raise OTXv2.RetryError(e)
+            raise OTXv2.RetryError(e) from e
 
 
 class OTX(classes.ObservableAnalyzer):
@@ -175,7 +175,7 @@ class OTX(classes.ObservableAnalyzer):
                     section=section,
                 )
             except (OTXv2.BadRequest, OTXv2.RetryError) as e:
-                raise AnalyzerRunException(f"Error while requesting data to OTX: {e}")
+                raise AnalyzerRunException(f"Error while requesting data to OTX: {e}") from e
             except OTXv2.NotFound as e:
                 logger.info(f"{to_analyze_observable} not found: {e}")
             else:

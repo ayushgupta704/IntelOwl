@@ -113,7 +113,8 @@ class AbuseIPDB(ObservableAnalyzer):
                 evaluation = self.report.data_model_class.EVALUATIONS.MALICIOUS.value
                 data_model.additional_info["description"] = (
                     "AbuseIPDB is a service where users can report malicious IP addresses attacking "
-                    + "their infrastructure. This IP address has been categorized with some malicious categories"
+                    + "their infrastructure. This IP address has been categorized with some malicious "
+                    + "categories"
                 )
             data_model.evaluation = evaluation
             data_model.reliability = report_data["abuseConfidenceScore"] // 10

@@ -56,12 +56,12 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
             self.disable_for_rate_limit()
             self.report.errors.append(error_message)
             self.report.save()
-            raise AnalyzerRunException(error_message)
+            raise AnalyzerRunException(error_message) from e
         except RequestFailure as e:
             error_message = self._format_greynoise_error(e, "Request failure from GreyNoise API")
             self.report.errors.append(error_message)
             self.report.save()
-            raise AnalyzerRunException(error_message)
+            raise AnalyzerRunException(error_message) from e
         except NotFound as e:
             logger.info(f"not found error for {self.observable_name} :{e}")
             response["not_found"] = True
@@ -138,5 +138,6 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
                 data_model.reliability = 7
             else:
                 logger.error(
-                    f"there should not be other types of classification. Classification found: {classification}"
+                    "there should not be other types of classification. "
+                    f"Classification found: {classification}"
                 )
