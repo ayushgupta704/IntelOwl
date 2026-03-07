@@ -139,5 +139,5 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
             else:
                 logger.error(
                     "there should not be other types of classification. "
-                    f"Classification found: {classification}"
+                    f"Classification found: {str(classification)[:50]}"
                 )
