@@ -285,7 +285,7 @@ class VisualizableListMixin:
 class VisualizableVerticalList(VisualizableListMixin, VisualizableObject):
     def __init__(
         self,
-        value: List[VisualizableObject],
+        value: list[VisualizableObject],
         name: VisualizableBase = None,
         start_open: bool = False,  # noqa
         add_count_in_title: bool = True,
@@ -398,8 +398,8 @@ class VisualizableTableColumn:
 class VisualizableTable(VisualizableObject):
     def __init__(
         self,
-        columns: List[VisualizableTableColumn],
-        data: List[Dict[str, VisualizableObject]],
+        columns: list[VisualizableTableColumn],
+        data: list[dict[str, VisualizableObject]],
         size: VisualizableSize = VisualizableSize.S_AUTO,
         alignment: VisualizableAlignment = VisualizableAlignment.AROUND,
         page_size: int = 5,
@@ -451,7 +451,7 @@ class VisualizableTable(VisualizableObject):
 class VisualizableHorizontalList(VisualizableListMixin, VisualizableObject):
     def __init__(
         self,
-        value: List[VisualizableObject],
+        value: list[VisualizableObject],
         alignment: VisualizableAlignment = VisualizableAlignment.AROUND,
     ):
         super().__init__(alignment=alignment, disable=False)
