@@ -209,6 +209,7 @@ class IPReputationServices(Visualizer):
         first_level_elements.append(self._tor())
         second_level_elements.append(self._abuseipdb())
         second_level_elements.append(self._otxquery())
+        third_level_elements.append(self._firehol())
         third_level_elements.append(self._talos())
 
         page = self.Page(name="Reputation")
