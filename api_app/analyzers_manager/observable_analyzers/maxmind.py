@@ -207,6 +207,7 @@ class Maxmind(classes.ObservableAnalyzer):
 
     def _update_data_model(self, data_model) -> None:
         from api_app.analyzers_manager.models import AnalyzerReport
+
         super()._update_data_model(data_model)
         report = self.report.report
         data_model.country_code = report.get("country", {}).get("iso_code")

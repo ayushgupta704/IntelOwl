@@ -100,6 +100,7 @@ class GreyNoiseAnalyzer(classes.ObservableAnalyzer):
 
     def _update_data_model(self, data_model):
         from api_app.analyzers_manager.models import AnalyzerReport
+
         super()._update_data_model(data_model)
         report = self.report.report
         data_model.org_name = report.get("metadata", {}).get("organization")

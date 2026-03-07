@@ -29,8 +29,7 @@ class IPReputationServices(Visualizer):
                 name=self.Base(
                     value="AbuseIPDB",
                     disable=not (
-                        analyzer_report.status == ReportStatus.SUCCESS
-                        and abuse_confidence_score is not None
+                        analyzer_report.status == ReportStatus.SUCCESS and abuse_confidence_score is not None
                     ),
                 ),
                 value=[
@@ -58,8 +57,7 @@ class IPReputationServices(Visualizer):
                     ),
                 ],
                 disable=not (
-                    analyzer_report.status == ReportStatus.SUCCESS
-                    and abuse_confidence_score is not None
+                    analyzer_report.status == ReportStatus.SUCCESS and abuse_confidence_score is not None
                 ),
             )
             return abuse_report
@@ -76,9 +74,7 @@ class IPReputationServices(Visualizer):
             malicious_count = stats.get("malicious", 0)
             vt3_report = self.Bool(
                 value="VirusTotal v3",
-                disable=not (
-                    analyzer_report.status == ReportStatus.SUCCESS and malicious_count > 0
-                ),
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and malicious_count > 0),
             )
             return vt3_report
 
@@ -134,9 +130,7 @@ class IPReputationServices(Visualizer):
             query_status = analyzer_report.report.get("query_status", "")
             threatfox_report = self.Bool(
                 value="ThreatFox",
-                disable=not (
-                    analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"
-                ),
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"),
             )
             return threatfox_report
 
@@ -150,9 +144,7 @@ class IPReputationServices(Visualizer):
             query_status = analyzer_report.report.get("query_status", "")
             urlhaus_report = self.Bool(
                 value="URLhaus",
-                disable=not (
-                    analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"
-                ),
+                disable=not (analyzer_report.status == ReportStatus.SUCCESS and query_status == "ok"),
             )
             return urlhaus_report
 

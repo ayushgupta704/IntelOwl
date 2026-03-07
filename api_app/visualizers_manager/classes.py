@@ -539,10 +539,13 @@ class Visualizer(Plugin, metaclass=abc.ABCMeta):
     @staticmethod
     def _humanize_key(key: str) -> str:
         import re
+
         res = re.sub(r"(?<!^)(?=[A-Z])", " ", key).replace("_", " ")
         return res.title()
 
-    def _get_dynamic_metadata(self, data: Dict[str, Any], excluded_keys: List[str]) -> List[VisualizableObject]:
+    def _get_dynamic_metadata(
+        self, data: Dict[str, Any], excluded_keys: List[str]
+    ) -> List[VisualizableObject]:
         metadata: List[VisualizableObject] = []
         if not data or not isinstance(data, dict):
             return metadata
