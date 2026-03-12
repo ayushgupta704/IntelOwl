@@ -121,14 +121,22 @@ class AnalyzerReport(AbstractReport):
         return result
 
     def create_data_model(self) -> Optional[BaseDataModel]:
-        # TODO we don't need to actually crate a new object every time.
-        #  if the report is the same of the previous one, we can just link it
         if not self._validation_before_data_model():
             return None
         dictionary = self._create_data_model_dictionary()
 
-        self.data_model: BaseDataModel = self.data_model_class.objects.create()
-        self.data_model.merge(dictionary)
+        from api_app.helpers import calculate_json_fingerprint
+
+        fp = calculate_json_fingerprint(dictionary)
+
+        self.data_model, created = self.data_model_class.objects.get_or_create(
+            fingerprint=fp,
+            defaults={}
+        )
+
+        if created:
+            self.data_model.merge(dictionary)
+
         self.save()
         return self.data_model
 

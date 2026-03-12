@@ -5,6 +5,7 @@
 
 import hashlib
 import ipaddress
+import json
 import logging
 import random
 import re
@@ -39,6 +40,18 @@ def calculate_sha1(value: bytes) -> str:
 
 def calculate_sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()  # skipcq BAN-B324
+
+
+def normalize_dict(data: dict) -> dict:
+    if not isinstance(data, dict):
+        return data
+    return {k: normalize_dict(v) if isinstance(v, dict) else v for k, v in sorted(data.items())}
+
+
+def calculate_json_fingerprint(data: dict) -> str:
+    normalized = normalize_dict(data)
+    json_str = json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+    return calculate_sha256(json_str.encode("utf-8"))
 
 
 def get_ip_version(ip_value):
