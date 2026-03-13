@@ -63,6 +63,7 @@ class BaseAnalyzerMixin(Plugin, metaclass=ABCMeta):
             if data_model:
                 self._update_data_model(data_model)
                 data_model.save()
+                data_model = self.report.deduplicate_data_model()
             return data_model
         return None
 

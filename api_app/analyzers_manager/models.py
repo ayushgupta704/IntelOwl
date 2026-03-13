@@ -124,20 +124,44 @@ class AnalyzerReport(AbstractReport):
         if not self._validation_before_data_model():
             return None
         dictionary = self._create_data_model_dictionary()
-
-        from api_app.helpers import calculate_json_fingerprint
-
-        fp = calculate_json_fingerprint(dictionary)
-
-        self.data_model, created = self.data_model_class.objects.get_or_create(
-            fingerprint=fp,
-            defaults={}
-        )
-
-        if created:
-            self.data_model.merge(dictionary)
-
+        self.data_model: BaseDataModel = self.data_model_class.objects.create()
+        self.data_model.merge(dictionary)
         self.save()
+        return self.data_model
+
+    def deduplicate_data_model(self) -> BaseDataModel:
+        if not self.data_model:
+            return None
+        from api_app.helpers import calculate_json_fingerprint
+        from django.db import transaction
+        excluded_fields = {"id", "date", "fingerprint", "analyzers_report", "jobs", "user_events"}
+        data_to_hash = {}
+        for field in self.data_model_class._meta.get_fields():
+            if field.name in excluded_fields or (field.is_relation and not field.many_to_many):
+                continue
+            try:
+                val = getattr(self.data_model, field.name)
+            except AttributeError:
+                continue
+            if field.many_to_many:
+                related_objects = list(val.all().values())
+                if related_objects:
+                    for obj in related_objects:
+                        obj.pop("id", None)
+                    data_to_hash[field.name] = related_objects
+            elif val:
+                data_to_hash[field.name] = val
+        fp = calculate_json_fingerprint(data_to_hash)
+        with transaction.atomic():
+            existing = self.data_model_class.objects.filter(fingerprint=fp).exclude(pk=self.data_model.pk).first()
+            if existing:
+                old_dm = self.data_model
+                self.data_model = existing
+                self.save()
+                old_dm.delete()
+            else:
+                self.data_model.fingerprint = fp
+                self.data_model.save(update_fields=['fingerprint'])
         return self.data_model
 
 

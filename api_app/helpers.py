@@ -42,10 +42,26 @@ def calculate_sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()  # skipcq BAN-B324
 
 
-def normalize_dict(data: dict) -> dict:
-    if not isinstance(data, dict):
-        return data
-    return {k: normalize_dict(v) if isinstance(v, dict) else v for k, v in sorted(data.items())}
+import datetime
+import uuid
+
+
+def normalize_dict(data):
+    if isinstance(data, dict):
+        return {k: normalize_dict(v) for k, v in sorted(data.items())}
+    if isinstance(data, list):
+        try:
+            return sorted(
+                [normalize_dict(v) for v in data],
+                key=lambda x: json.dumps(x, sort_keys=True) if isinstance(x, dict) else str(x)
+            )
+        except TypeError:
+            return [normalize_dict(v) for v in data]
+    if isinstance(data, (datetime.datetime, datetime.date)):
+        return data.isoformat()
+    if isinstance(data, uuid.UUID):
+        return str(data)
+    return data
 
 
 def calculate_json_fingerprint(data: dict) -> str:
