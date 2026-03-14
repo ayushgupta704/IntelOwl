@@ -90,7 +90,7 @@ class BaseDataModel(models.Model):
     additional_info = models.JSONField(
         default=dict
     )  # field for additional information related to a specific analyzer
-    fingerprint = models.CharField(max_length=64, null=True, blank=True, db_index=True)
+    fingerprint = models.CharField(max_length=64, null=True, blank=True, unique=True, db_index=True)
     date = models.DateTimeField(default=now)
     analyzers_report = GenericRelation(
         to="analyzers_manager.AnalyzerReport",

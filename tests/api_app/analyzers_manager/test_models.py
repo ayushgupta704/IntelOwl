@@ -78,7 +78,8 @@ class AnalyzerReportTestCase(CustomTestCase):
         }
         config.save()
         job.analyzers_to_execute.set([config])
-        data_model = ar.create_data_model()
+        data_model, created = ar.create_data_model()
+        self.assertTrue(created)
         data_model.refresh_from_db()
         self.assertIsNotNone(data_model)
         self.assertEqual(data_model.evaluation, "malicious")
@@ -88,6 +89,40 @@ class AnalyzerReportTestCase(CustomTestCase):
         ar.delete()
         job.delete()
         an1.delete()
+
+    def test_deduplicate_data_model(self):
+        an1 = Analyzable.objects.create(
+            name="8.8.8.8",
+            classification=Classification.IP,
+        )
+        job1 = Job.objects.create(analyzable=an1)
+        job2 = Job.objects.create(analyzable=an1)
+        config = AnalyzerConfig.objects.filter(type="observable").first()
+        ar1 = AnalyzerReport.objects.create(
+            report={"evaluation": "MALICIOUS", "asn": 15169},
+            job=job1,
+            config=config,
+            status=AnalyzerReport.STATUSES.SUCCESS.value,
+            task_id=str(uuid()),
+            parameters={},
+        )
+        ar1.config.mapping_data_model = {"evaluation": "evaluation", "asn": "asn"}
+        ar1.config.save()
+        dm1, created1 = ar1.create_data_model()
+        self.assertTrue(created1)
+        self.assertIsNotNone(dm1.fingerprint)
+        ar2 = AnalyzerReport.objects.create(
+            report={"evaluation": "MALICIOUS", "asn": 15169},
+            job=job2,
+            config=config,
+            status=AnalyzerReport.STATUSES.SUCCESS.value,
+            task_id=str(uuid()),
+            parameters={},
+        )
+        dm2, created2 = ar2.create_data_model()
+        self.assertFalse(created2)
+        self.assertEqual(dm1.id, dm2.id)
+        self.assertEqual(dm1.fingerprint, dm2.fingerprint)
 
     def test_get_value(self):
         an1 = Analyzable.objects.create(

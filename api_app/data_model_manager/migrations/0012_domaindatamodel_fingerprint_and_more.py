@@ -11,16 +11,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='domaindatamodel',
             name='fingerprint',
-            field=models.CharField(blank=True, db_index=True, max_length=64, null=True),
+            field=models.CharField(blank=True, db_index=True, max_length=64, null=True, unique=True),
         ),
         migrations.AddField(
             model_name='filedatamodel',
             name='fingerprint',
-            field=models.CharField(blank=True, db_index=True, max_length=64, null=True),
+            field=models.CharField(blank=True, db_index=True, max_length=64, null=True, unique=True),
         ),
         migrations.AddField(
             model_name='ipdatamodel',
             name='fingerprint',
-            field=models.CharField(blank=True, db_index=True, max_length=64, null=True),
+            field=models.CharField(blank=True, db_index=True, max_length=64, null=True, unique=True),
         ),
     ]

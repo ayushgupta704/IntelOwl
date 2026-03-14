@@ -120,49 +120,66 @@ class AnalyzerReport(AbstractReport):
                 result[data_model_key] = value
         return result
 
-    def create_data_model(self) -> Optional[BaseDataModel]:
+    def create_data_model(self, mtm_data: Optional[Dict] = None) -> Tuple[Optional[BaseDataModel], bool]:
         if not self._validation_before_data_model():
-            return None
+            return None, False
         dictionary = self._create_data_model_dictionary()
-        self.data_model: BaseDataModel = self.data_model_class.objects.create()
-        self.data_model.merge(dictionary)
-        self.save()
-        return self.data_model
-
-    def deduplicate_data_model(self) -> BaseDataModel:
-        if not self.data_model:
-            return None
         from api_app.helpers import calculate_json_fingerprint
-        from django.db import transaction
+        from django.db import transaction, IntegrityError
         excluded_fields = {"id", "date", "fingerprint", "analyzers_report", "jobs", "user_events"}
         data_to_hash = {}
         for field in self.data_model_class._meta.get_fields():
             if field.name in excluded_fields or (field.is_relation and not field.many_to_many):
                 continue
-            try:
-                val = getattr(self.data_model, field.name)
-            except AttributeError:
-                continue
             if field.many_to_many:
-                related_objects = list(val.all().values())
-                if related_objects:
-                    for obj in related_objects:
-                        obj.pop("id", None)
-                    data_to_hash[field.name] = related_objects
-            elif val:
-                data_to_hash[field.name] = val
-        fp = calculate_json_fingerprint(data_to_hash)
-        with transaction.atomic():
-            existing = self.data_model_class.objects.filter(fingerprint=fp).exclude(pk=self.data_model.pk).first()
-            if existing:
-                old_dm = self.data_model
-                self.data_model = existing
-                self.save()
-                old_dm.delete()
+                if mtm_data and field.name in mtm_data:
+                    related_objects = []
+                    for obj in mtm_data[field.name]:
+                        if hasattr(obj, "__dict__"):
+                            obj_data = obj.__dict__.copy()
+                            obj_data.pop("_state", None)
+                            obj_data.pop("id", None)
+                            related_objects.append(obj_data)
+                        elif isinstance(obj, dict):
+                            obj_data = obj.copy()
+                            obj_data.pop("id", None)
+                            related_objects.append(obj_data)
+                        else:
+                            related_objects.append(obj)
+                    if related_objects:
+                        data_to_hash[field.name] = related_objects
             else:
-                self.data_model.fingerprint = fp
-                self.data_model.save(update_fields=['fingerprint'])
-        return self.data_model
+                val = dictionary.get(field.name)
+                if val is not None and val != "" and val != [] and val != {}:
+                    data_to_hash[field.name] = val
+        fp = calculate_json_fingerprint(data_to_hash)
+        try:
+            with transaction.atomic():
+                data_model, created = self.data_model_class.objects.get_or_create(
+                    fingerprint=fp,
+                    defaults={"fingerprint": fp}
+                )
+                self.data_model = data_model
+                if created:
+                    self.data_model.merge(dictionary)
+                    if mtm_data:
+                        for field_name, value in mtm_data.items():
+                            getattr(self.data_model, field_name).add(*value)
+                else:
+                    if mtm_data:
+                        for field_name, value_list in mtm_data.items():
+                            for obj in value_list:
+                                if hasattr(obj, "pk") and obj.pk:
+                                    obj.delete()
+                self.save()
+                return data_model, created
+        except IntegrityError:
+            data_model = self.data_model_class.objects.get(fingerprint=fp)
+            self.data_model = data_model
+            self.save()
+            return data_model, False
+        except Exception as e:
+            raise e
 
 
 class MimeTypes(models.TextChoices):

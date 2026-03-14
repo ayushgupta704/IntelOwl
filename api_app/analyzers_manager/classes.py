@@ -59,11 +59,8 @@ class BaseAnalyzerMixin(Plugin, metaclass=ABCMeta):
     def create_data_model(self):
         self.report: AnalyzerReport
         if self._do_create_data_model():
-            data_model = self.report.create_data_model()
-            if data_model:
-                self._update_data_model(data_model)
-                data_model.save()
-                data_model = self.report.deduplicate_data_model()
+            mtm_data = self._create_data_model_mtm()
+            data_model, created = self.report.create_data_model(mtm_data=mtm_data)
             return data_model
         return None
 
