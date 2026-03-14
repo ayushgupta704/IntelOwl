@@ -120,7 +120,7 @@ class AnalyzerReport(AbstractReport):
                 result[data_model_key] = value
         return result
 
-    def create_data_model(self, mtm_data: Optional[Dict] = None) -> Tuple[Optional[BaseDataModel], bool]:
+    def create_data_model(self) -> Tuple[Optional[BaseDataModel], bool]:
         if not self._validation_before_data_model():
             return None, False
         dictionary = self._create_data_model_dictionary()
@@ -131,27 +131,9 @@ class AnalyzerReport(AbstractReport):
         for field in self.data_model_class._meta.get_fields():
             if field.name in excluded_fields or (field.is_relation and not field.many_to_many):
                 continue
-            if field.many_to_many:
-                if mtm_data and field.name in mtm_data:
-                    related_objects = []
-                    for obj in mtm_data[field.name]:
-                        if hasattr(obj, "__dict__"):
-                            obj_data = obj.__dict__.copy()
-                            obj_data.pop("_state", None)
-                            obj_data.pop("id", None)
-                            related_objects.append(obj_data)
-                        elif isinstance(obj, dict):
-                            obj_data = obj.copy()
-                            obj_data.pop("id", None)
-                            related_objects.append(obj_data)
-                        else:
-                            related_objects.append(obj)
-                    if related_objects:
-                        data_to_hash[field.name] = related_objects
-            else:
-                val = dictionary.get(field.name)
-                if val is not None and val != "" and val != [] and val != {}:
-                    data_to_hash[field.name] = val
+            val = dictionary.get(field.name)
+            if val is not None and val != "" and val != [] and val != {}:
+                data_to_hash[field.name] = val
         fp = calculate_json_fingerprint(data_to_hash)
         try:
             with transaction.atomic():
@@ -162,15 +144,6 @@ class AnalyzerReport(AbstractReport):
                 self.data_model = data_model
                 if created:
                     self.data_model.merge(dictionary)
-                    if mtm_data:
-                        for field_name, value in mtm_data.items():
-                            getattr(self.data_model, field_name).add(*value)
-                else:
-                    if mtm_data:
-                        for field_name, value_list in mtm_data.items():
-                            for obj in value_list:
-                                if hasattr(obj, "pk") and obj.pk:
-                                    obj.delete()
                 self.save()
                 return data_model, created
         except IntegrityError:
