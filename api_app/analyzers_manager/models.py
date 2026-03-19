@@ -2,7 +2,7 @@
 # See the file 'LICENSE' for copying permission.
 import json
 from logging import getLogger
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Tuple, Type, Union
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
