@@ -24,70 +24,46 @@ class MigrationIntegrityTestCase(CustomTestCase):
         self.old_state = self.executor.migrate([(self.app_name, self.migration_from)])
 
     def test_migration_0013_deduplication_integrity(self):
-        """
-        Test that we can identify and merge duplicates after fingerprinting.
-        """
         old_apps = self.old_state.apps
         IPDataModel = old_apps.get_model(self.app_name, "IPDataModel")
         UserAnalyzableEvent = old_apps.get_model("user_events_manager", "UserAnalyzableEvent")
         Analyzable = old_apps.get_model("analyzables_manager", "Analyzable")
         ContentType = old_apps.get_model("contenttypes", "ContentType")
         User = old_apps.get_model("certego_saas_user", "User")
-
-        # Create user from the correct migration state
         user = User.objects.create(username="test_migrator", email="test@intelowl.org")
-
-        # Create Analyzables with required hashes
         name1, name2 = "1.1.1.1", "8.8.8.8"
         az1 = Analyzable.objects.create(
-            name=name1, classification="ip",
+            name=name1,
+            classification="ip",
             md5=calculate_md5(name1.encode()),
             sha1=calculate_sha1(name1.encode()),
-            sha256=calculate_sha256(name1.encode())
+            sha256=calculate_sha256(name1.encode()),
         )
         az2 = Analyzable.objects.create(
-            name=name2, classification="ip",
+            name=name2,
+            classification="ip",
             md5=calculate_md5(name2.encode()),
             sha1=calculate_sha1(name2.encode()),
-            sha256=calculate_sha256(name2.encode())
+            sha256=calculate_sha256(name2.encode()),
         )
-
-        # Create identical legacy DataModels
         dm1 = IPDataModel.objects.create(evaluation="benign", reliability=5)
         dm2 = IPDataModel.objects.create(evaluation="benign", reliability=5)
-
         ct = ContentType.objects.get_for_model(IPDataModel)
-
-        # Link events to both
         UserAnalyzableEvent.objects.create(
-            user=user,
-            analyzable=az1,
-            data_model_content_type=ct,
-            data_model_object_id=dm1.id
+            user=user, analyzable=az1, data_model_content_type=ct, data_model_object_id=dm1.id
         )
         UserAnalyzableEvent.objects.create(
-            user=user,
-            analyzable=az2,
-            data_model_content_type=ct,
-            data_model_object_id=dm2.id
+            user=user, analyzable=az2, data_model_content_type=ct, data_model_object_id=dm2.id
         )
-
-        # Apply the migration
         self.executor.loader.build_graph()
         new_state = self.executor.migrate([(self.app_name, self.migration_to)])
         new_apps = new_state.apps
         IPDataModelNew = new_apps.get_model(self.app_name, "IPDataModel")
         UserAnalyzableEventNew = new_apps.get_model("user_events_manager", "UserAnalyzableEvent")
-
-        # Verify deduplication
         self.assertEqual(IPDataModelNew.objects.count(), 1)
         canonical = IPDataModelNew.objects.first()
-
-        # Verify events are re-linked
         events = UserAnalyzableEventNew.objects.filter(data_model_object_id=canonical.id)
         self.assertEqual(events.count(), 2)
-
-        # Ensure the redundant one is gone
         self.assertFalse(IPDataModelNew.objects.filter(id=dm2.id).exists())
 
     def tearDown(self):
