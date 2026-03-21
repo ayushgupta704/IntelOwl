@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+
 from django.db import migrations
 
 logger = logging.getLogger(__name__)

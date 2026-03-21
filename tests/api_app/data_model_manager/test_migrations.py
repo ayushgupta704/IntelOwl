@@ -1,7 +1,9 @@
-from django.db.migrations.executor import MigrationExecutor
 from django.db import connection
-from tests import CustomTestCase
+from django.db.migrations.executor import MigrationExecutor
+
 from api_app.helpers import calculate_md5, calculate_sha1, calculate_sha256
+from tests import CustomTestCase
+
 
 class MigrationIntegrityTestCase(CustomTestCase):
     @property
@@ -31,10 +33,10 @@ class MigrationIntegrityTestCase(CustomTestCase):
         Analyzable = old_apps.get_model("analyzables_manager", "Analyzable")
         ContentType = old_apps.get_model("contenttypes", "ContentType")
         User = old_apps.get_model("certego_saas_user", "User")
-        
+
         # Create user from the correct migration state
         user = User.objects.create(username="test_migrator", email="test@intelowl.org")
-        
+
         # Create Analyzables with required hashes
         name1, name2 = "1.1.1.1", "8.8.8.8"
         az1 = Analyzable.objects.create(
@@ -53,20 +55,20 @@ class MigrationIntegrityTestCase(CustomTestCase):
         # Create identical legacy DataModels
         dm1 = IPDataModel.objects.create(evaluation="benign", reliability=5)
         dm2 = IPDataModel.objects.create(evaluation="benign", reliability=5)
-        
+
         ct = ContentType.objects.get_for_model(IPDataModel)
-        
+
         # Link events to both
         UserAnalyzableEvent.objects.create(
-            user=user, 
-            analyzable=az1, 
-            data_model_content_type=ct, 
+            user=user,
+            analyzable=az1,
+            data_model_content_type=ct,
             data_model_object_id=dm1.id
         )
         UserAnalyzableEvent.objects.create(
-            user=user, 
-            analyzable=az2, 
-            data_model_content_type=ct, 
+            user=user,
+            analyzable=az2,
+            data_model_content_type=ct,
             data_model_object_id=dm2.id
         )
 
@@ -80,11 +82,11 @@ class MigrationIntegrityTestCase(CustomTestCase):
         # Verify deduplication
         self.assertEqual(IPDataModelNew.objects.count(), 1)
         canonical = IPDataModelNew.objects.first()
-        
+
         # Verify events are re-linked
         events = UserAnalyzableEventNew.objects.filter(data_model_object_id=canonical.id)
         self.assertEqual(events.count(), 2)
-        
+
         # Ensure the redundant one is gone
         self.assertFalse(IPDataModelNew.objects.filter(id=dm2.id).exists())
 
