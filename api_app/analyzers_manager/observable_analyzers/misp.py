@@ -55,12 +55,9 @@ class MISP(classes.ObservableAnalyzer):
         if self.enforce_warninglist:
             params["enforce_warninglist"] = self.enforce_warninglist
         # https://pymisp.readthedocs.io/en/latest/modules.html#pymisp.PyMISP
-        # fixme: this should be None as default but is False
-        # so it's not possible to set it as False in this way.
-        #  migration required
-        if self.published:
+        if self.published is not None:
             params["published"] = self.published
-        if self.metadata:
+        if self.metadata is not None:
             params["metadata"] = self.metadata
 
         if self.strict_search:
