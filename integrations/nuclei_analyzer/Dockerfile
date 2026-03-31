@@ -15,11 +15,11 @@ WORKDIR /app
 
 # Copy and install requirements first (better layer caching)
 COPY app.py requirements.txt entrypoint.sh ./
-RUN python3 -m venv venv \
-    && . venv/bin/activate \
-    && pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir -r requirements.txt \
-    && rm -rf ~/.cache/pip/*
+
+# Add uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.1 /uv /uvx /bin/
+
+RUN uv pip install --system --no-cache-dir -r requirements.txt
 
 # Create log directory with proper permissions
 RUN mkdir -p ${LOG_PATH} \

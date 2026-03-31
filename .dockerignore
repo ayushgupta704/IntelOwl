@@ -4,6 +4,8 @@
 .lgtm.yml
 __pycache__
 venv/
+.venv/
+.uv/
 **/build
 .env
 docker/env_file_*

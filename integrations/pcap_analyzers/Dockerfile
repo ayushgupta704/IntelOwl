@@ -18,7 +18,10 @@ COPY crontab /etc/cron.d/suricata
 COPY config/suricata/etc/* /etc/suricata/
 COPY config/suricata/rules/* /var/lib/suricata/rules/
 
-RUN pip3 install -r requirements.txt --no-cache-dir \
+# Add uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.1 /uv /uvx /bin/
+
+RUN uv pip install --system --no-cache-dir -r requirements.txt \
     && chown -R ${USER}:${USER} . /etc/suricata /var/lib/suricata \
     && mkdir -p ${LOG_PATH}/suricata/ \
     && touch /var/log/cron.log ${LOG_PATH}/suricata/suricata.log \

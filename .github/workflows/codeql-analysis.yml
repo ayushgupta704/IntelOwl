@@ -48,20 +48,20 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "0.11.1"
+        enable-cache: true
+
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends apt-utils libsasl2-dev libssl-dev libldap2-dev python-dev-is-python3 libfuzzy-dev net-tools git libcurl4-openssl-dev
-        python -m pip install --upgrade pip
-        if [ -f requirements/project-requirements.txt ];
-        then pip install -r requirements/project-requirements.txt;
-        fi
-        if [ -f requirements/certego-requirements.txt ];
-        then pip install -r requirements/certego-requirements.txt;
-        fi
+        uv sync --frozen
         # Set the `CODEQL-PYTHON` environment variable to the Python executable
         # that includes the dependencies
-        echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
+        echo "CODEQL_PYTHON=$(uv run which python)" >> $GITHUB_ENV
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
