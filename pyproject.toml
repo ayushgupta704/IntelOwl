@@ -107,7 +107,7 @@ dependencies = [
     "defusedxml==0.7.1",
     "pyzipper==0.3.6",
     "dateparser==1.2.0",
-    "DeepDiff==8.6.1",
+    "DeepDiff>=8.7.0",
     "lxml==6.0.2",
     "Faker==36.1.0",
     "beautifulsoup4==4.14.2",
