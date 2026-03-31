@@ -96,10 +96,12 @@ fi
 
 check_parameters "$@" && shift 2
 
+# Extract version from pyproject.toml
+current_version=$(grep -m 1 '^version = ' pyproject.toml | cut -d '"' -f 2)
+export REACT_APP_INTELOWL_VERSION="v${current_version}"
+
 # shellcheck source=docker/.env disable=SC1091
 . docker/.env
-
-current_version=${REACT_APP_INTELOWL_VERSION/"v"/""}
 
 docker_analyzers=("pcap_analyzers" "tor_analyzers" "malware_tools_analyzers" "thug" "cyberchef" "phoneinfoga" "phishing_analyzers" "nuclei_analyzer" "bbot" "phunter")
 

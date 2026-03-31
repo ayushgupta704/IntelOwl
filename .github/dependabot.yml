@@ -14,7 +14,7 @@ updates:
       - dependency-name: "faker"
         update-types: ["version-update:semver-minor"]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/malware_tools_analyzers/requirements"
     schedule:
       interval: "weekly"
@@ -24,7 +24,7 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/tor_analyzers"
     schedule:
       interval: "weekly"
@@ -34,7 +34,7 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/pcap_analyzers"
     schedule:
       interval: "weekly"
@@ -44,7 +44,7 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/nuclei_analyzer"
     schedule:
       interval: "weekly"
@@ -56,7 +56,7 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/nuclei_analyzer"
     schedule:
       interval: "weekly"
@@ -68,7 +68,7 @@ updates:
       - dependency-name: "*"
         update-types: [ "version-update:semver-patch" ]
 
-  - package-ecosystem: "pip"
+  package-ecosystem: "uv"
     directory: "/integrations/phishing_analyzers"
     schedule:
       interval: "weekly"

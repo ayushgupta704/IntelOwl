@@ -14,7 +14,7 @@ supported-markers = [
 prerelease-mode = "allow"
 
 [manifest]
-overrides = [{ name = "markdown", specifier = "==3.3.7" }]
+overrides = [{ name = "markdown", specifier = ">=3.4.0" }]
 
 [[package]]
 name = "ail-typo-squatting"
@@ -448,7 +448,7 @@ sqs = [
 
 [[package]]
 name = "certego-saas"
-version = "0.7.11"
+version = "0.7.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
@@ -468,9 +468,9 @@ dependencies = [
     { name = "slack-sdk", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
     { name = "stripe", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7f/9e/eefdab908519c9075f3151a50fab8ecea7597029b89ead8c1abc878341af/certego_saas-0.7.11.tar.gz", hash = "sha256:2c527468688c4b6fe630e743b49db73f508dbc818f10a62a88c13be3e94aeb41", size = 62924, upload-time = "2024-08-06T10:48:17.008Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/45/bc73e8264d29dc07aed7bc02a568f485f32c6c0cf2b7c6134e86c062518d/certego_saas-0.7.12.tar.gz", hash = "sha256:66d9e02325832cd752c234f13db11670cad149f0420f44e32166afb832ffbba4", size = 63360, upload-time = "2026-03-25T12:04:49.267Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/a5/afdd63f0b5ed0999f713870b66eb2e872c769a7243f08e285ccf293bac14/certego_saas-0.7.11-py3-none-any.whl", hash = "sha256:e02464a82116bb25ff1c94b7c5b14911e25e7742f00ea54758e3a93b6883476e", size = 92065, upload-time = "2024-08-06T10:48:15.794Z" },
+    { url = "https://files.pythonhosted.org/packages/81/3c/b72ffa274677fd48c7e130e0bc022c1f6f4a173790038336088ddf22c27a/certego_saas-0.7.12-py3-none-any.whl", hash = "sha256:7336372f1a2c5f7e01d98886e7d2285843728b88a4fa5e59899fbbde3f46e17f", size = 92162, upload-time = "2026-03-25T12:04:47.96Z" },
 ]
 
 [[package]]
@@ -1036,15 +1036,15 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "4.2.27"
+version = "4.2.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
     { name = "sqlparse", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ce/ff/6aa5a94b85837af893ca82227301ac6ddf4798afda86151fb2066d26ca0a/django-4.2.27.tar.gz", hash = "sha256:b865fbe0f4a3d1ee36594c5efa42b20db3c8bbb10dff0736face1c6e4bda5b92", size = 10432781, upload-time = "2025-12-02T14:01:49.006Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/a9/25b75b11a4c7a6efe1661c181afe504992e0659ca6eedb72a065cdd91a25/django-4.2.28.tar.gz", hash = "sha256:a4b9cd881991add394cafa8bb3b11ad1742d1e1470ba99c3ef53dc540316ccfe", size = 10464933, upload-time = "2026-02-03T13:55:27.686Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dd/f5/1a2319cc090870bfe8c62ef5ad881a6b73b5f4ce7330c5cf2cb4f9536b12/django-4.2.27-py3-none-any.whl", hash = "sha256:f393a394053713e7d213984555c5b7d3caeee78b2ccb729888a0774dff6c11a8", size = 7995090, upload-time = "2025-12-02T14:01:44.234Z" },
+    { url = "https://files.pythonhosted.org/packages/68/20/6d0808bc7500a6c654eae17b53f791a50af2c3f3ac4f328cbec324948c31/django-4.2.28-py3-none-any.whl", hash = "sha256:49a23c1b83ef31525f8d71a57b040f91d34660edb3f086280a8519855655ed3c", size = 7995543, upload-time = "2026-02-03T13:55:09.798Z" },
 ]
 
 [[package]]
@@ -2298,7 +2298,7 @@ requires-dist = [
     { name = "blint", specifier = "==2.3.2" },
     { name = "boto3", specifier = "==1.39.4" },
     { name = "celery", extras = ["sqs", "redis"], specifier = "==5.4.0" },
-    { name = "certego-saas", specifier = "==0.7.11" },
+    { name = "certego-saas", specifier = "==0.7.12" },
     { name = "channels", specifier = "==4.1.0" },
     { name = "channels-redis", specifier = "==4.2.0" },
     { name = "checkdmarc", specifier = "==5.13.1" },
@@ -2309,7 +2309,7 @@ requires-dist = [
     { name = "deepdiff", specifier = ">=8.7.0" },
     { name = "defusedxml", specifier = "==0.7.1" },
     { name = "die-python", specifier = "==0.4.0" },
-    { name = "django", specifier = "==4.2.27" },
+    { name = "django", specifier = "==4.2.28" },
     { name = "django-auth-ldap", specifier = "==5.1.0" },
     { name = "django-celery-beat", specifier = "==2.7.0" },
     { name = "django-celery-results", specifier = "==2.5.0" },
@@ -2794,11 +2794,11 @@ wheels = [
 
 [[package]]
 name = "markdown"
-version = "3.3.7"
+version = "3.10.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d6/58/79df20de6e67a83f0d0bbfe6c19bb82adf68cdf362885257eb01099f930a/Markdown-3.3.7.tar.gz", hash = "sha256:cbb516f16218e643d8e0a95b309f77eb118cb138d39a4f27851e6a63581db874", size = 324130, upload-time = "2022-05-05T19:08:39.707Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/f4/69fa6ed85ae003c2378ffa8f6d2e3234662abd02c10d216c0ba96081a238/markdown-3.10.2.tar.gz", hash = "sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950", size = 368805, upload-time = "2026-02-09T14:57:26.942Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/df/ca72f352e15b6f8ce32b74af029f1189abffb906f7c137501ffe69c98a65/Markdown-3.3.7-py3-none-any.whl", hash = "sha256:f5da449a6e1c989a4cea2631aa8ee67caa5a2ef855d551c88f9e309f4634c621", size = 97778, upload-time = "2022-05-05T19:08:38.155Z" },
+    { url = "https://files.pythonhosted.org/packages/de/1f/77fa3081e4f66ca3576c896ae5d31c3002ac6607f9747d2e3aa49227e464/markdown-3.10.2-py3-none-any.whl", hash = "sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36", size = 108180, upload-time = "2026-02-09T14:57:25.787Z" },
 ]
 
 [[package]]

@@ -4,7 +4,7 @@ version = "6.5.1"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     # Django core
-    "Django==4.2.27",
+    "Django==4.2.28",
     "psycopg2-binary==2.9.6",
     "django-auth-ldap==5.1.0",
     "django-radius==1.5.0",
@@ -111,7 +111,7 @@ dependencies = [
     "lxml==6.0.2",
     "Faker==36.1.0",
     "beautifulsoup4==4.14.2",
-    "certego-saas==0.7.11",
+    "certego-saas==0.7.12",
     "pycti==6.8.8",
 ]
 
@@ -129,7 +129,7 @@ watchman = [
 
 [tool.uv]
 prerelease = "allow"
-override-dependencies = ["markdown==3.3.7"]
+override-dependencies = ["markdown>=3.4.0"]
 environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'",
     "sys_platform == 'linux' and platform_machine == 'aarch64'",
