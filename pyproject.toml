@@ -43,8 +43,8 @@ dependencies = [
     "elasticsearch-dsl==8.17.0",
 
     # Plugins & OSINT Tools
-    "GitPython==3.1.41",
-    "checkdmarc==5.13.1",
+    "GitPython==3.1.46",
+    "checkdmarc==5.14.1",
     "dnspython==2.8.0",
     "dnstwist[full]==20250130",
     "google>=3.0.0",
@@ -59,7 +59,7 @@ dependencies = [
     "peepdf-fork==0.4.3",
     "pdfid==1.1.0",
     "pefile==2024.8.26",
-    "Pillow==11.0.0",
+    "Pillow==12.1.1",
     "pydeep==0.4",
     "pyelftools==0.31",
     "PyExifTool==0.5.0",
