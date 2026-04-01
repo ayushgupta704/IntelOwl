@@ -1,6 +1,7 @@
 [project]
 name = "intelowl"
 version = "6.5.1"
+license = { text = "AGPL-3.0-or-later" }
 requires-python = ">=3.11,<3.12"
 dependencies = [
     # Django core

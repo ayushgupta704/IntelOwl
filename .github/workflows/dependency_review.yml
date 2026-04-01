@@ -4,7 +4,7 @@ on:
     branches: [ master, develop ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   dependency-review:
@@ -17,6 +17,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      - name: 'Submit Dependency Snapshot'
+        uses: rmuir/uv-dependency-submission@v1
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
