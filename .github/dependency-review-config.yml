@@ -42,6 +42,10 @@ allow_licenses:
   - Unlicense
   - Zlib
   - curl
+  - OFL-1.1
+  - ZPL-2.1
+  - CAL-1.0
+  - python-ldap
   - LicenseRef-github-NOASSERTION
   - LicenseRef-scancode-proprietary-license
   - LicenseRef-scancode-public-domain

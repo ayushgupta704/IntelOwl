@@ -10,8 +10,7 @@ from api_app.models import UpdateCheckStatus
 class UpdateCheckerTests(TestCase):
     """Tests for IntelOwl update check system."""
 
-    @staticmethod
-    def setUp():
+    def setUp(self):
         UpdateCheckStatus.objects.all().delete()
 
     @override_settings(INTEL_OWL_VERSION="1.0.0", UPDATE_CHECK_URL="http://dummy")
