@@ -13,8 +13,10 @@ jobs:
       - name: 'Checkout Repository'
         uses: actions/checkout@v6.0.2
 
-      - name: 'Submit Dependency Snapshot'
-        uses: actions/dependency-review-action/submit@v4
+      - name: 'Install uv'
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
