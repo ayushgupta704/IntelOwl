@@ -14,7 +14,10 @@ supported-markers = [
 prerelease-mode = "allow"
 
 [manifest]
-overrides = [{ name = "markdown", specifier = ">=3.4.0" }]
+overrides = [
+    { name = "future", specifier = ">=0.18.3" },
+    { name = "markdown", specifier = ">=3.4.0" },
+]
 
 [[package]]
 name = "ail-typo-squatting"
@@ -1712,9 +1715,12 @@ wheels = [
 
 [[package]]
 name = "future"
-version = "0.16.0"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/00/2b/8d082ddfed935f3608cc61140df6dcbf0edea1bc3ab52fb6c29ae3e81e85/future-0.16.0.tar.gz", hash = "sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb", size = 824484, upload-time = "2016-10-27T20:07:22.128Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/b2/4140c69c6a66432916b26158687e821ba631a4c9273c474343badf84d3ba/future-1.0.0.tar.gz", hash = "sha256:bd2968309307861edae1458a4f8a4f3598c03be43b97521076aebf5d94c07b05", size = 1228490, upload-time = "2024-02-21T11:52:38.461Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/da/71/ae30dadffc90b9006d77af76b393cb9dfbfc9629f339fc1574a1c52e6806/future-1.0.0-py3-none-any.whl", hash = "sha256:929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216", size = 491326, upload-time = "2024-02-21T11:52:35.956Z" },
+]
 
 [[package]]
 name = "geoip2"
