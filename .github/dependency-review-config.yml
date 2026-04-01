@@ -1,6 +1,7 @@
 # Config for Dependency Review
 # See: https://github.com/actions/dependency-review-action#configuration
 fail_on_severity: high
+fail_on_scorecard: false
 allow-licenses:
   - MIT
   - Apache-2.0
