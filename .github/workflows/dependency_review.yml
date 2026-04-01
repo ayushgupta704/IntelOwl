@@ -3,12 +3,11 @@ on:
   pull_request:
     branches: [ master, develop ]
 
-permissions:
-  contents: write
-
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: 'Checkout Repository'
         uses: actions/checkout@v6.0.2
@@ -19,7 +18,7 @@ jobs:
           enable-cache: true
 
       - name: 'Submit Dependency Snapshot'
-        uses: rmuir/uv-dependency-submission@v1
+        uses: rmuir/uv-dependency-submission@v1.0.1
 
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
