@@ -4,7 +4,7 @@ version = "6.5.1"
 requires-python = ">=3.11"
 dependencies = [
     # django libs
-    "Django==4.2.27",
+    "Django==4.2.29",
     "psycopg2-binary==2.9.6",
     "django-auth-ldap==5.1.0",
     "django-radius==1.5.0",
@@ -154,8 +154,27 @@ line-length = 110
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "DJ"]
-ignore = ["DJ012", "DJ001", "DJ008"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "DJ",  # flake8-django
+]
+ignore = [
+    "E231",  # missing whitespace after ','
+    "E501",  # line too long - handled by formatter, remaining are strings/comments
+    "W605",  # invalid escape sequence
+    "UP",    # pyupgrade
+    "C4",    # flake8-comprehensions
+    "UP006", # Use `list` instead of `List` for type annotation
+    "UP035", # deprecated imports from typing module
+    "DJ012",
+    "DJ001",
+    "DJ008",
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["certego_saas"]
