@@ -72,7 +72,7 @@ dependencies = [
     "uwsgi==2.0.28",
     "uwsgitop==0.12",
     "python-ldap==3.4.5",
-    "authlib==1.6.5",
+    "authlib==1.6.9",
     "mwdblib==4.6.0",
     "intezer-sdk==1.24.0",
     "geoip2==4.8.0",
