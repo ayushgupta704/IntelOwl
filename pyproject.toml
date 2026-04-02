@@ -48,9 +48,9 @@ dependencies = [
     "beautifulsoup4==4.14.2",
     "lxml==6.0.2",
     "numpy==2.4.4",
-    "pillow==11.0.0",
+    "pillow==12.1.1",
     "tqdm==4.67.3",
-    "rich==13.9.4",
+    "rich==14.3.3",
     "click==8.3.1",
     # security libs
     "yara-python==4.5.1",
@@ -58,7 +58,7 @@ dependencies = [
     "pefile==2024.8.26",
     "olefile==0.47",
     "oletools==0.60.2",
-    "lief==0.15.1",
+    "lief==0.17.2",
     "capstone==5.0.7",
     "unicorn==1.0.2",
     "androguard==3.4.0a1",
@@ -84,7 +84,7 @@ dependencies = [
     "google-cloud-webrisk==1.20.0",
     "jbxapi==3.23.0",
     "ail-typo-squatting==2.7.4",
-    "blint==2.3.2",
+    "blint==3.1.1",
     "checkdmarc==5.13.1",
     "docxpy==0.8.5",
     "dotnetfile==0.2.4",
@@ -114,7 +114,7 @@ dependencies = [
     "thinkst-zippy==0.1.2",
     "wad==0.4.6",
     "whitenoise==6.9.0",
-    "xlmmacrodeobfuscator==0.2.3",
+    "xlmmacrodeobfuscator==0.2.7",
     "dateparser==1.2.0",
     "debloat==1.6.4",
     "deepdiff==8.6.2",
@@ -148,6 +148,11 @@ certego = [
 
 [tool.uv]
 managed = true
+override-dependencies = [
+    "future==0.18.3",
+    "markdown==3.8.1",
+    "unicorn==2.1.1",
+]
 
 [tool.ruff]
 line-length = 110
