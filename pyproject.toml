@@ -118,6 +118,8 @@ dependencies = [
     "dateparser==1.2.0",
     "debloat==1.6.4",
     "deepdiff==8.6.2",
+    "machofile>=2026.2.10",
+    "die-python>=0.5.0",
 ]
 
 [dependency-groups]
@@ -151,7 +153,6 @@ managed = true
 override-dependencies = [
     "future==0.18.3",
     "markdown==3.8.1",
-    "unicorn==2.1.1",
 ]
 
 [tool.ruff]
