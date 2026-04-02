@@ -117,7 +117,7 @@ dependencies = [
     "xlmmacrodeobfuscator==0.2.3",
     "dateparser==1.2.0",
     "debloat==1.6.4",
-    "deepdiff==8.6.1",
+    "deepdiff==8.6.2",
 ]
 
 [dependency-groups]
