@@ -19,7 +19,7 @@ COPY crontab /etc/cron.d/suricata
 COPY config/suricata/etc/* /etc/suricata/
 COPY config/suricata/rules/* /var/lib/suricata/rules/
 
-RUN uv pip install --system -r requirements.txt \
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system -r requirements.txt \
     && chown -R ${USER}:${USER} . /etc/suricata /var/lib/suricata \
     && mkdir -p ${LOG_PATH}/suricata/ \
     && touch /var/log/cron.log ${LOG_PATH}/suricata/suricata.log \

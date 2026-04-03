@@ -25,7 +25,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -qq \
 WORKDIR ${PROJECT_PATH}/phishing_analyzers
 COPY --chown=${USER}:${USER} app.py requirements.txt entrypoint.sh ./
 COPY --chown=${USER}:${USER} analyzers/* ./analyzers/
-RUN chmod u+x entrypoint.sh \
+RUN --mount=type=cache,target=/root/.cache/uv chmod u+x entrypoint.sh \
     && uv pip install --system -r requirements.txt \
     && playwright install chromium --with-deps \
     && chmod -R o+rX /ms-playwright

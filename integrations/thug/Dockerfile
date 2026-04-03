@@ -17,7 +17,7 @@ RUN apt-get update -qq \
 WORKDIR ${PROJECT_PATH}/flask
 COPY app.py requirements.txt entrypoint.sh ./
 
-RUN uv pip install --system -r requirements.txt \
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system -r requirements.txt \
     && mkdir -p ${PROJECT_PATH}/thug \
     && chown -R ${USER}:${USER} . ${PROJECT_PATH}/thug \
     && chmod +x entrypoint.sh

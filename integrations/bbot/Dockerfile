@@ -19,7 +19,7 @@ WORKDIR ${PROJECT_PATH}
 COPY requirements.txt app.py ./
 
 # Install Python packages
-RUN uv pip install --system -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system -r requirements.txt
 
 # Pre-install BBOT dependencies & Make script executable
 RUN bbot --install-all-deps -y --force && \

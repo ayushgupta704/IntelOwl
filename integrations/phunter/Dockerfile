@@ -14,7 +14,7 @@ WORKDIR /app
 COPY requirements.txt app.py ./
 
 # Install Python packages
-RUN uv pip install --system -r requirements.txt -r /app/Phunter/requirements.txt
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system -r requirements.txt -r /app/Phunter/requirements.txt
 
 # Expose port
 EXPOSE 5612

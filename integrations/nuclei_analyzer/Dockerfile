@@ -16,7 +16,7 @@ WORKDIR /app
 
 # Copy and install requirements first (better layer caching)
 COPY app.py requirements.txt entrypoint.sh ./
-RUN python3 -m venv venv \
+RUN --mount=type=cache,target=/root/.cache/uv python3 -m venv venv \
     && . venv/bin/activate \
     && uv pip install -r requirements.txt \
     && rm -rf ~/.cache/pip/*

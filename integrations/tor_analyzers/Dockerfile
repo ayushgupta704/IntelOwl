@@ -29,7 +29,7 @@ RUN apt-get remove --purge -y git gcc \
 WORKDIR ${PROJECT_PATH}/tor-flask
 COPY app.py requirements.txt entrypoint.sh ./
 
-RUN uv pip install --system -r requirements.txt \
+RUN --mount=type=cache,target=/root/.cache/uv uv pip install --system -r requirements.txt \
     && chown -R ${USER}:${USER} . \
     && chmod +x entrypoint.sh
 
