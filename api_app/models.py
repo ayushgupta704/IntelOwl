@@ -376,6 +376,12 @@ class Job(MP_Node):
             # WHERE ("api_app_job"."depth" >= ? AND "api_app_job"."path"::text LIKE ? AND NOT ("api_app_job"."id" = ?))
             models.Index(fields=["depth", "path", "id"], name="MPNodeSearch"),
         ]
+        constraints = [
+            UniqueConstraint(
+                fields=["path"],
+                name="job_path_unique",
+            )
+        ]
 
     # constants
     TLP = TLP

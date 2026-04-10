@@ -266,17 +266,25 @@ class JobQuerySet(MP_NodeQuerySet, CleanOnCreateQuerySet, SendToBiQuerySet):
         Returns:
             The created job.
         """
-        if parent:
-            return parent.add_child(**kwargs)
         # try multiple times hoping to for no race conditions
-        total_attempt_number = 5
+        total_attempt_number = 10
         for attempt in range(0, total_attempt_number):
             try:
+                if parent:
+                    if attempt > 0:
+                        parent.refresh_from_db()
+                    return parent.add_child(**kwargs)
                 return self.model.add_root(**kwargs)
             except IntegrityError:
-                logger.warning(f"Found race condition for {kwargs['name']}. Trying again to calculate path.")
+                logger.warning(
+                    f"Found race condition for {kwargs.get('analyzable', 'unknown')}. Trying again to calculate path."
+                )
                 if attempt == total_attempt_number - 1:
                     raise
+                import time
+
+                # exponential backoff
+                time.sleep(0.01 * (2**attempt))
 
     def delete(self, *args, **kwargs):
         """
